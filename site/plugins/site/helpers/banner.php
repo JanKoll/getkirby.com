@@ -28,9 +28,10 @@ function banner(): ?Obj {
         $candidate = new Obj($candidate);
 
         // The cache will expire once the *first* of the configured
-        // banners will start
+        // banners will start, but only for banners that are not already started
         if (
             $candidate->startDate() &&
+            $candidate->startDate() > time() &&
             ($expires === null || $candidate->startDate() < $expires)
         ) {
             $expires = $candidate->startDate();
@@ -51,7 +52,11 @@ function banner(): ?Obj {
     // If a banner is currently active, the cache
     // will also expire when the active banner ends
     if ($banner !== null && $banner->endDate()) {
-        $expires = min($expires, $banner->endDate());
+        if (is_int($expires) === true) {
+            $expires = min($expires, $banner->endDate());
+        } else {
+            $expires = $banner->endDate();
+        }
     }
 
     kirby()->response()->cacheExpiry($expires);
