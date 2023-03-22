@@ -33,6 +33,31 @@ Create a new snippet with the following content in `/site/snippets`:
 The variables in this snippet are defined and passed to the `snippet()` helper in the route below.
 </info>
 
+### Example for multilanguage sites
+```php "/site/snippets/sitemap.php"
+<?php
+header('Content-type: application/xml; charset="UTF-8"');
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+
+$kirby = kirby();
+$site = site();
+?>
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <?php foreach($site->pages()->index() as $page): ?>
+        <?php foreach($kirby->languages() as $language): ?>
+            <?php $localizedPage = $page->urlForLanguage($language->code()) ?>
+            <url>
+                <loc><?= html($localizedPage) ?></loc>
+                <lastmod><?= $page->modified('c', 'date') ?></lastmod>
+			          <priority><?= ($p->isHomePage()) ? 1 : number_format(0.5 / $p->depth(), 1) ?></priority>
+            </url>
+        <?php endforeach ?>
+    <?php endforeach ?>
+</urlset>
+```
+
 ## Create new routes
 
 In your `config.php`, create these two new (glossary: route text: routes):
